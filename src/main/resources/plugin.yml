@@ -1,0 +1,8 @@
+main: me.mmigas.LandsPlugin
+name: Lands
+api-version: 1.16
+version: 1.0
+
+commands:
+  Lands:
+    description: Lands commands
