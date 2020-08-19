@@ -1,60 +1,56 @@
 package me.mmigas.lands;
 
-import me.mmigas.utils.Pair;
 import me.mmigas.utils.SortedMap;
 import org.bukkit.Chunk;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Area {
-    private Land land;
+    private final Owner owner;
     //Key = x, Value = Y's set
     private final SortedMap<Integer, Set<Integer>> chunks;
 
-    Area(Pair<Integer, Integer> coords) {
+    Area(Owner owner) {
+        this.owner = owner;
         chunks = new SortedMap<>();
-        chunks.add(coords);
     }
 
-    Area(Land land, Chunk chunk) {
-        this.land = land;
+    Area(Owner owner, int x, int z) {
+        this.owner = owner;
         chunks = new SortedMap<>();
-        chunks.add(new Pair<>(chunk.getX(), chunk.getZ()));
+        chunks.add(x, z);
     }
 
-    Area(Land land, Pair<Integer, Integer> coords) {
-        this.land = land;
+    Area(Owner owner, Chunk chunk) {
+        this.owner = owner;
         chunks = new SortedMap<>();
-        chunks.add(coords);
+        chunks.add(chunk.getX(), chunk.getZ());
     }
 
-    boolean isExpanding(Pair<Integer, Integer> coords) {
-        int x = coords.first;
-        int y = coords.second;
+    boolean isExpanding(int x, int z) {
         Map<Integer, Set<Integer>> map = chunks.getMap();
         Set<Integer> ySet;
 
         if (map.containsKey(x)) {
             ySet = map.get(x);
-            return ySet.contains(y - 1) || ySet.contains(y + 1) || !ySet.contains(y);
+            return ySet.contains(z - 1) || ySet.contains(z + 1) || !ySet.contains(z);
         } else if (map.containsKey(x - 1)) {
             ySet = map.get(x - 1);
-            return ySet.contains(y);
+            return ySet.contains(z);
         } else if (map.containsKey(x + 1)) {
             ySet = map.get(x + 1);
-            return ySet.contains(y);
+            return ySet.contains(z);
         }
-
         return false;
     }
 
-    boolean canRemove(Pair<Integer, Integer> coords) {
-        return containsChunk(coords) && (checkXAxisToRemove(coords) || checkZAxisToRemove(coords));
+    boolean canRemove(int x, int z) {
+        return containsChunk(x, z) && (checkXAxisToRemove(x, z) || checkZAxisToRemove(x, z));
     }
 
-    private boolean checkXAxisToRemove(Pair<Integer, Integer> coords) {
-        int x = coords.first;
-        int y = coords.second;
+    private boolean checkXAxisToRemove(int x, int z) {
         Map<Integer, Set<Integer>> map = chunks.getMap();
         Set<Integer> ySetRight;
         Set<Integer> ySetLeft;
@@ -63,18 +59,16 @@ public class Area {
         boolean hasLeft = false;
         if (map.containsKey(x + 1)) {
             ySetRight = map.get(x + 1);
-            hasRight = ySetRight.contains(y);
+            hasRight = ySetRight.contains(z);
         }
         if (map.containsKey(x - 1)) {
             ySetLeft = map.get(x - 1);
-            hasLeft = ySetLeft.contains(y);
+            hasLeft = ySetLeft.contains(z);
         }
         return !hasRight && hasLeft || hasRight && !hasLeft;
     }
 
-    private boolean checkZAxisToRemove(Pair<Integer, Integer> coords) {
-        int x = coords.first;
-        int z = coords.second;
+    private boolean checkZAxisToRemove(int x, int z) {
         Map<Integer, Set<Integer>> map = chunks.getMap();
         if (map.containsKey(x)) {
             Set<Integer> ySet = map.get(x);
@@ -85,9 +79,7 @@ public class Area {
         return false;
     }
 
-    private boolean containsChunk(Pair<Integer, Integer> coords) {
-        int x = coords.first;
-        int z = coords.second;
+    boolean containsChunk(int x, int z) {
         Map<Integer, Set<Integer>> map = chunks.getMap();
         if (map.containsKey(x)) {
             return map.get(x).contains(z);
@@ -95,19 +87,35 @@ public class Area {
         return false;
     }
 
-    void expand(Pair<Integer, Integer> coords) {
-        chunks.add(coords);
+    void mergeAreas(List<Area> ownerAreas, Owner owner) {
+        owner.removeAreasOwner(ownerAreas.size());
+        for (Area area : ownerAreas) {
+            SortedMap<Integer, Set<Integer>> otherChunk = area.getChunks();
+            for (Map.Entry<Integer, Set<Integer>> entry : otherChunk.getMap().entrySet()) {
+                int x = entry.getKey();
+                int z;
+                for (Integer integer : entry.getValue()) {
+                    z = integer;
+                    expand(x, z);
+                }
+            }
+        }
     }
 
-    void remove(Pair<Integer, Integer> coords) {
-        chunks.remove(coords);
+    void expand(int x, int z) {
+        chunks.add(x, z);
     }
 
-    public Land getLand() {
-        return land;
+    void remove(int x, int z) {
+        chunks.remove(x, z);
+    }
+
+    public Owner getOwner() {
+        return owner;
     }
 
     public SortedMap<Integer, Set<Integer>> getChunks() {
         return chunks;
     }
+
 }

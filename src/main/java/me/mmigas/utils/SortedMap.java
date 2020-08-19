@@ -12,21 +12,17 @@ public class SortedMap<E extends Comparable<E>, T extends Set<E>> {
 
     public SortedMap(E e1, E e2) {
         map = new TreeMap<>();
-        add(new Pair<>(e1, e2));
+        add(e1, e2);
     }
 
-    public void add(Pair<E, E> values) {
-        E first = values.first;
-        E second = values.second;
+    public void add(E first, E second) {
         T tSet;
         tSet = map.containsKey(first) ? map.get(first) : (T) new TreeSet<E>();
         tSet.add(second);
         map.put(first, tSet);
     }
 
-    public void remove(Pair<E, E> values) {
-        E first = values.first;
-        E second = values.second;
+    public void remove(E first, E second) {
         T tSet = map.get(first);
         if (tSet.size() == 1) {
             map.remove(first);
