@@ -1,4 +1,4 @@
-package me.mmigas.utils;
+package me.mmigas.lands.utils;
 
 import java.util.*;
 

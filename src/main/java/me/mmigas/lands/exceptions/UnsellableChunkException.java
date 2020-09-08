@@ -1,4 +1,4 @@
-package me.mmigas.exceptions;
+package me.mmigas.lands.exceptions;
 
 public class UnsellableChunkException extends RuntimeException {
 }

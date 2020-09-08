@@ -1,29 +1,28 @@
-package me.mmigas.lands;
+package me.mmigas.lands.lands;
 
-import me.mmigas.utils.SortedMap;
+import me.mmigas.lands.utils.SortedMap;
 import org.bukkit.Chunk;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Area {
+public class Land {
     private final Owner owner;
     //Key = x, Value = Y's set
     private final SortedMap<Integer, Set<Integer>> chunks;
 
-    Area(Owner owner) {
+    Land(Owner owner) {
         this.owner = owner;
         chunks = new SortedMap<>();
     }
 
-    Area(Owner owner, int x, int z) {
+    Land(Owner owner, int x, int z) {
         this.owner = owner;
         chunks = new SortedMap<>();
         chunks.add(x, z);
     }
 
-    Area(Owner owner, Chunk chunk) {
+    Land(Owner owner, Chunk chunk) {
         this.owner = owner;
         chunks = new SortedMap<>();
         chunks.add(chunk.getX(), chunk.getZ());
@@ -87,21 +86,6 @@ public class Area {
         return false;
     }
 
-    void mergeAreas(List<Area> ownerAreas, Owner owner) {
-        owner.removeAreasOwner(ownerAreas.size());
-        for (Area area : ownerAreas) {
-            SortedMap<Integer, Set<Integer>> otherChunk = area.getChunks();
-            for (Map.Entry<Integer, Set<Integer>> entry : otherChunk.getMap().entrySet()) {
-                int x = entry.getKey();
-                int z;
-                for (Integer integer : entry.getValue()) {
-                    z = integer;
-                    expand(x, z);
-                }
-            }
-        }
-    }
-
     void expand(int x, int z) {
         chunks.add(x, z);
     }
@@ -117,5 +101,4 @@ public class Area {
     public SortedMap<Integer, Set<Integer>> getChunks() {
         return chunks;
     }
-
 }

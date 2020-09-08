@@ -1,4 +1,4 @@
-package me.mmigas.utils;
+package me.mmigas.lands.utils;
 
 public class Pair<F, S> {
     private final F first;
